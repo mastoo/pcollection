@@ -12,18 +12,18 @@ namespace alf{
 class AsciiTable {
    
     std::vector<std::vector< std::vector<std::string> > >row_list;
-    std::vector<int> column_width_list;
-    std::vector<int> row_height_list;
+    std::vector<size_t> column_width_list;
+    std::vector<size_t> row_height_list;
 
-    int num_rows;
-    int num_columns;
-    int column_index;
+    size_t num_rows;
+    size_t num_columns;
+    size_t column_index;
 
     void print_orizontal_line(std::ostream& stream) const{
         stream << "+" ;
-        for(int c = 0; c< column_width_list.size(); c++)
+        for(size_t c = 0; c< column_width_list.size(); c++)
         {
-            for(int i = 0; i<column_width_list[c]; i++ )
+            for(size_t i = 0; i<column_width_list[c]; i++ )
                 stream << "-";
             stream << "+";
         } 
@@ -44,10 +44,10 @@ class AsciiTable {
     void print_table(std::ostream& stream) const{
         stream << std::endl;
         print_orizontal_line(stream);
-        for ( int r = 0; r < num_rows; r ++){
-            for(int m =0 ; m < row_height_list[r]; m++){
+        for ( size_t r = 0; r < num_rows; r ++){
+            for(size_t m =0 ; m < row_height_list[r]; m++){
                 stream << "|";                
-                for ( int c = 0;c< num_columns; c++ ){                
+                for ( size_t c = 0;c< num_columns; c++ ){                
                     stream << std::setw(column_width_list[c]);
                     
                     if(c<row_list[r].size()){
@@ -86,22 +86,23 @@ public:
         std::stringstream ss;
         //ss.flags(stream.flags());
         ss << /*std::setprecision(stream.precision()) <<*/ obj;
-        int newW = 2*(ss.str().length()/2 + 1);
+        
+        std::vector<std::string> sub_rows;
+        std::string to;
+        size_t newH =0;
+        size_t newW = 0;
+        while(std::getline(ss,to,'\n')){
+            newH++;
+            newW = std::max(newW,2*(to.length()/2 + 1));
+            sub_rows.push_back(to);
+        }    
         
         if(column_index<num_columns){            
-            int currentW = column_width_list[column_index];           
+            size_t currentW = column_width_list[column_index];           
             column_width_list[column_index] = std::max(currentW,newW);
         }else{
             column_width_list.push_back(newW);
         }
-        
-        std::vector<std::string> sub_rows;
-        std::string to;
-        int newH =0;
-        while(std::getline(ss,to,'\n')){
-            newH++;
-            sub_rows.push_back(to);
-        }        
         row_height_list[num_rows] = std::max(row_height_list[num_rows],newH);            
                 
         row_list[num_rows].push_back(sub_rows);        
